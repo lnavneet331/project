@@ -7,3 +7,6 @@
 /selfTest
 *.jpg
 *.jpeg
+*.pkl
+*.json
+*.zip
