@@ -1,21 +1,29 @@
 import cv2
+import numpy as np
+
 
 def extract_face(image_path):
-    # Load the Haar cascade classifier for face detection
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    # Load the pre-trained deep learning face detector
+    model_path = 'deploy.prototxt'
+    weights_path = 'res10_300x300_ssd_iter_140000_fp16.caffemodel'
+    net = cv2.dnn.readNetFromCaffe(model_path, weights_path)
 
     # Read the image
     image = cv2.imread(image_path)
 
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Create a blob from the image
+    blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300), (104.0, 177.0, 123.0))
 
-    # Detect faces in the image
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    # Set the blob as input to the network
+    net.setInput(blob)
+
+    # Forward pass through the network to detect faces
+    detections = net.forward()
 
     # Extract the first detected face (assuming only one face is present)
-    if len(faces) > 0:
-        (x, y, w, h) = faces[0]
+    if detections.shape[2] > 0:
+        box = detections[0, 0, 0, 3:7] * np.array([image.shape[1], image.shape[0], image.shape[1], image.shape[0]])
+        (x, y, w, h) = box.astype(int)
         face = image[y:y+h, x:x+w]
         return face
 

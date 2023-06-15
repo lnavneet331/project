@@ -10,3 +10,6 @@
 *.pkl
 *.json
 *.zip
+*.h5
+*.caffemodel
+*.pyc
